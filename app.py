@@ -4,11 +4,6 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-
-# 1. Carregar dados 
-
-# importando pacotes
-import pandas as pd
 import kagglehub
 import os
 

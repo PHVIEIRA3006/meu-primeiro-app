@@ -2,3 +2,6 @@ streamlit
 seaborn
 matplotlib
 pandas
+kagglehub
+os
+

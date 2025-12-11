@@ -5,11 +5,98 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# 1. Carregar dados (sem cache, direto)
-titanic = sns.load_dataset('titanic')
+# 1. Carregar dados 
+
+# importando pacotes
+import pandas as pd
+import kagglehub
+import os
+
+
+caminho = kagglehub.dataset_download("olistbr/brazilian-ecommerce")
+
+csv1 = "olist_customers_dataset.csv"
+
+
+
+
+csv2 = "olist_order_items_dataset.csv"
+full_csv2 = os.path.join(caminho, csv2)
+dados2=  pd.read_csv(os.path.join(caminho, full_csv2))
+dados2.head()
+
+
+csv3 = "olist_order_payments_dataset.csv"
+full_csv3 = os.path.join(caminho, csv3)
+dados3=  pd.read_csv(os.path.join(caminho, full_csv3))
+dados3.head()
+
+
+csv4 = "olist_orders_dataset.csv"
+full_csv4 = os.path.join(caminho, csv4)
+dados4=  pd.read_csv(os.path.join(caminho, full_csv4))
+dados4.head()
+
+
+teste = pd.merge(dados4, dados2, on='order_id', how='inner')
+teste.head()
+
+
+teste2 = pd.merge(teste, dados3, on='order_id', how='inner')
+teste2.head()
+
+
+
+costu= pd.merge(dados4, dados1, on='customer_id', how='inner')
+costu.head(10)
+
+
+teste3= pd.merge(teste2, costu, on='order_id', how='inner')
+teste3.head()
+
+
+
+
+Nordeste= ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN','SE']
+Sudeste= ['ES', 'MG', 'RJ','SP']
+Norte= ['AC' , 'AM', 'AP', 'PA','RO','RR','TO']
+Centroeste= ['DF', 'GO', 'MS', 'MT']
+Sul= ['PR','RS','SC']
+
+# Filtrando clientes da região Nordeste
+clientes_nordeste = teste3[teste3['customer_state'].isin(Nordeste)]
+print('Clientes da região Nordeste:')
+display(clientes_nordeste.head())
+
+
+# Filtrando clientes da região Sudeste
+clientes_sudeste = teste3[teste3['customer_state'].isin(Sudeste)]
+print('Clientes da região Sudeste:')
+display(clientes_sudeste.head())
+
+
+# Filtrando clientes da região Norte
+clientes_norte = teste3[teste3['customer_state'].isin(Norte)]
+print('Clientes da região Norte:')
+display(clientes_norte.head())
+
+
+# Filtrando clientes da região Centro-Oeste
+clientes_centroeste = teste3[teste3['customer_state'].isin(Centroeste)]
+print('Clientes da região Centro-Oeste:')
+display(clientes_centroeste.head())
+
+
+# Filtrando clientes da região Sul
+clientes_sul = teste3[teste3['customer_state'].isin(Sul)]
+print('Clientes da região Sul:')
+display(clientes_sul.head())
+
+
+
 
 # 2. Criar o seletor (direto na página)
-options = ['sex', 'pclass', 'embarked', 'sibsp', 'parch']
+options = ['Nordeste', 'Sudeste', 'Norte', 'Centroeste', 'Sul']
 selected_var = st.selectbox('Selecione a variável de agrupamento:', options)
 
 # 3. Calcular a taxa de sobrevivência

@@ -3,9 +3,10 @@
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
-import pandas as pd
+import pandas as pdteste3_filtered
 import os
 
+dataset = pd.read_csv(teste3_filtered)
 
 # 2. Criar o seletor (direto na página)
 options = ['Nordeste', 'Sudeste', 'Norte', 'Centroeste', 'Sul']

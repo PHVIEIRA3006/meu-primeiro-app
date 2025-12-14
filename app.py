@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 # 1. Carregar dados (sem cache, direto)
-dadosfilt = pd.read_csv("path/para/teste3_filtered.csv")  # ajuste o caminho
+dadosfilt = pd.read_csv("meu-primeiro-app/teste3_filtered.csv")  # ajuste o caminho
 
 # 2. Criar o seletor (direto na página)
 options = ['sex', 'pclass', 'embarked', 'sibsp', 'parch']

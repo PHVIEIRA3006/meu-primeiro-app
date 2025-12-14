@@ -109,24 +109,23 @@ st.markdown("---")
 
 # --- GRÁFICO 2: Boxplot (Valor Pago) ---
 st.subheader(f"2. Distribuição do Valor Pago ({nome_da_regiao})")
-
-    fig2, ax2 = plt.subplots(figsize=(12, 8))
-    sns.boxplot(
-        x='customer_state_full',
-        y='price', 
-        data=região, 
-        orient='v', 
-        palette='viridis',
-        ax=ax2
+fig2, ax2 = plt.subplots(figsize=(12, 8))
+sns.boxplot(
+    x='customer_state_full',
+    y='price', 
+    data=região, 
+    orient='v', 
+    palette='viridis',
+    ax=ax2
     )
-    ax2.set_title(f'Distribuição do Valor Pago por Estado ({nome_da_regiao})')
-    ax2.set_xlabel('Estado')
-    ax2.set_ylabel('Valor (R$)')
+ax2.set_title(f'Distribuição do Valor Pago por Estado ({nome_da_regiao})')
+ax2.set_xlabel('Estado')
+ax2.set_ylabel('Valor (R$)')
     # Ajuste opcional para visualizar melhor (remove outliers extremos visuais)
-    ax2.set_ylim(0, região['price'].quantile(0.95)) 
-    st.pyplot(fig2)
+ax2.set_ylim(0, região['price'].quantile(0.95)) 
+st.pyplot(fig2)
 
-    st.markdown("---")
+st.markdown("---")
 
 # --- GRÁFICO 3: Boxplot (Valor do Frete) ---
 st.subheader(f"3. Distribuição do Valor do Frete ({nome_da_regiao})")

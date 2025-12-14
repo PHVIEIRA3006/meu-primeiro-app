@@ -123,5 +123,4 @@ elif região is clientes_centroeste:
     sns.barplot(x='count', y='customer_state_full', hue='payment_type_portugues', data=regiãopag, orient='h', palette='viridis')
     ax.set_title(f'istribuição de Tipos de Pagamento por Estado (Região {nome_da_regiao})') # Um título mínimo
     st.pyplot(fig)
-except Exception as e:
-    st.error(f"Erro ao processar a coluna '{regiãoes}': {e}")
+

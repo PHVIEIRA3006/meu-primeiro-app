@@ -119,11 +119,11 @@ elif região is clientes_centroeste:
 
 
 # Grafico de barras
-plt.figure(figsize=(12, 8))
+ fig, ax = plt.subplots(figsize=(12, 8))
 sns.barplot(x='count', y='customer_state_full', hue='payment_type_portugues', data=regiãopag, orient='h', palette='viridis')
 plt.title('Distribuição de Tipos de Pagamento por Estado (Região teste)')
 plt.xlabel('Número de Pagamentos')
 plt.ylabel('Estado do Cliente')
 plt.legend(title='Tipo de Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
-plt.show()
+    st.pyplot(fig)

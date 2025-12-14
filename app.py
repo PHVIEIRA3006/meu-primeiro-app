@@ -124,7 +124,7 @@ elif região is clientes_centroeste:
  #   ax.set_title(f'istribuição de Tipos de Pagamento por Estado (Região {nome_da_regiao})') # Um título mínimo
    # st.pyplot(fig)
 
- fig, ax = plt.subplots(figsize=(7, 4))
+    fig, ax = plt.subplots(figsize=(7, 4))
     sns.barplot(x='count', y='customer_state_full', hue='payment_type_portugues', data=regiãopag, orient='h', palette='viridis'    )
     ax.set_ylim(0, 1) # Define o limite do eixo Y
     ax.set_title(f'Distribuição de Tipos de Pagamento por Estado (Região  {regiãoes})') # Um título mínimo

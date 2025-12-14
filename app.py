@@ -68,20 +68,21 @@ clientes_centroeste = teste3_copy[teste3_copy['customer_state'].isin(Centroeste)
 
 # 2. Criar o seletor (direto na página)
 regiãoes= ''
+regi
 Ropções = ['Nordeste', 'Sudeste', 'Norte', 'Centroeste', 'Sul']
 regiãoes = st.selectbox('Selecione o estado:', Ropções)
 
 #trocar nome em região
 if regiãoes is "Nordeste":
     região = clientes_nordeste
-elif região is  "Sudeste":
-    nome_da_regiao = clientes_sudeste
-elif região is "Sul":
-    nome_da_regiao = clientes_sul
-elif região is "Norte":
-    nome_da_regiao = clientes_norte
-elif região is "Centro-Oeste":
-    nome_da_regiao = clientes_centroeste
+elif regiãoes is  "Sudeste":
+    região = clientes_sudeste
+elif regiãoes is "Sul":
+    região = clientes_sul
+elif regiãoes is "Norte":
+    região = clientes_norte
+elif regiãoes is "Centro-Oeste":
+    região = clientes_centroeste
 
 # Define the region name based on the chosen DataFrame
 # You can change this manually or implement a more dynamic mapping if needed

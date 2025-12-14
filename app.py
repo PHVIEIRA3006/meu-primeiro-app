@@ -130,6 +130,5 @@ elif região is clientes_centroeste:
     ax.set_title(f'Distribuição de Tipos de Pagamento por Estado (Região  {selected_var})') # Um título mínimo
     st.pyplot(fig)
 
-except Exception as e:
-    st.error(f"Erro ao processar a coluna '{selected_var}': {e}")
+
 

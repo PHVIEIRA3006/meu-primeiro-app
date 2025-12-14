@@ -33,3 +33,5 @@ try:
 
     # 5. Exibir o gráfico
     st.pyplot(fig)
+except Exception as e:
+    st.error(f"Erro ao processar a coluna '{selected_var}': {e}")

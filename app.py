@@ -108,7 +108,7 @@ st.pyplot(fig1)
 st.markdown("---")
 
 # --- GRÁFICO 2: Boxplot (Valor Pago) ---
-st.subheader(f"2. Distribuição do Valor Pago ({nome_da_regiao})")
+st.subheader(f"2. Distribuição do Preço na região ({nome_da_regiao})")
 fig2, ax2 = plt.subplots(figsize=(12, 8))
 sns.boxplot(
     x='customer_state_full',
@@ -118,7 +118,7 @@ sns.boxplot(
     palette='viridis',
     ax=ax2
     )
-ax2.set_title(f'Distribuição do Valor Pago por Estado ({nome_da_regiao})')
+ax2.set_title(f'Distribuição do preço por Estado ({nome_da_regiao})')
 ax2.set_xlabel('Estado')
 ax2.set_ylabel('Valor (R$)')
     # Ajuste opcional para visualizar melhor (remove outliers extremos visuais)

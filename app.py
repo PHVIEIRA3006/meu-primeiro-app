@@ -5,7 +5,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 # 1. Carregar dados (sem cache, direto)
-titanic = sns.load_dataset('titanic')
+df = pd.read_csv("path/para/teste3_filtered.csv")  # ajuste o caminho
+    # análise
+    print(df.describe())
 
 # 2. Criar o seletor (direto na página)
 options = ['sex', 'pclass', 'embarked', 'sibsp', 'parch']

@@ -3,7 +3,7 @@
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
-import pandas as pdteste3_filtered
+import pandas as pd
 import os
 # 1. Carregar dados (sem cache, direto)
 titanic = sns.load_dataset('titanic')
@@ -34,6 +34,3 @@ try:
 
     # 5. Exibir o gráfico
     st.pyplot(fig)
-
-except Exception as e:
-    st.error(f"Erro ao processar a coluna '{selected_var}': {e}")

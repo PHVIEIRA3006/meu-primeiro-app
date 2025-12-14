@@ -108,7 +108,7 @@ st.pyplot(fig1)
 st.markdown("---")
 
 # --- GRÁFICO 2: Boxplot (Valor Pago) ---
-    st.subheader(f"2. Distribuição do Valor Pago ({nome_da_regiao})")
+st.subheader(f"2. Distribuição do Valor Pago ({nome_da_regiao})")
 
     fig2, ax2 = plt.subplots(figsize=(12, 8))
     sns.boxplot(

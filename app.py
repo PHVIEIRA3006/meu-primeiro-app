@@ -4,7 +4,6 @@ import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
-import os
 # 1. Carregar dados (sem cache, direto)
 titanic = sns.load_dataset('titanic')
 

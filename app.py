@@ -69,6 +69,8 @@ clientes_centroeste = teste3_copy[teste3_copy['customer_state'].isin(Centroeste)
 # 2. Criar o seletor (direto na página)
 regiãoes= ''
 região= ''
+Estadoes= ''
+
 Ropções = ['Nordeste', 'Sudeste', 'Norte', 'Centroeste', 'Sul']
 regiãoes = st.selectbox('Selecione o estado:', Ropções)
 

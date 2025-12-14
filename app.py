@@ -7,7 +7,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 # 1. Carregar dados (sem cache, direto)
-base = pd.read_csv('teste3_filtered.csv')
+teste3_filtered = pd.read_csv('teste3_filtered.csv')
 #
 Nordeste= ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN','SE']
 Sudeste= ['ES', 'MG', 'RJ','SP']

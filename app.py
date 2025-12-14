@@ -126,19 +126,5 @@ plt.legend(title='Tipo de Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left'
 plt.tight_layout()
 plt.show()
 
-    # 4. Criar o gráfico
-    # É necessário criar fig, ax para passar para st.pyplot()
-    fig, ax = plt.subplots(figsize=(7, 4))
-    sns.barplot(
-        x=selected_var,
-        y='survived',
-        data=survival_rate,
-        ax=ax
-    )
-    ax.set_ylim(0, 1) # Define o limite do eixo Y
-    ax.set_title(f'Taxa de Sobrevivência por {selected_var}') # Um título mínimo
-
-    # 5. Exibir o gráfico
-    st.pyplot(fig)
 except Exception as e:
     st.error(f"Erro ao processar a coluna '{selected_var}': {e}")

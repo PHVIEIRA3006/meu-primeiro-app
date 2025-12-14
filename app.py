@@ -125,6 +125,3 @@ plt.ylabel('Estado do Cliente')
 plt.legend(title='Tipo de Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
 plt.show()
-
-except Exception as e:
-    st.error(f"Erro ao processar a coluna '{selected_var}': {e}")

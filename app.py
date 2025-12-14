@@ -5,11 +5,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pdteste3_filtered
 import os
-
-dataset = pd.read_csv(teste3_filtered)
+# 1. Carregar dados (sem cache, direto)
+titanic = sns.load_dataset('titanic')
 
 # 2. Criar o seletor (direto na página)
-options = ['Nordeste', 'Sudeste', 'Norte', 'Centroeste', 'Sul']
+options = ['sex', 'pclass', 'embarked', 'sibsp', 'parch']
 selected_var = st.selectbox('Selecione a variável de agrupamento:', options)
 
 # 3. Calcular a taxa de sobrevivência

@@ -88,7 +88,6 @@ elif regiãoes is "Centro-Oeste":
 
 # Define the region name based on the chosen DataFrame
 # You can change this manually or implement a more dynamic mapping if needed
-nome_da_regiao= ''
     nome_da_regiao = regiãoes
 #nome do estado 
 nome_completo_estado = regiãosemsigla.get(Estadoes, Estadoes)

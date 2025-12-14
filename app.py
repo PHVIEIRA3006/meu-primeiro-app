@@ -7,34 +7,26 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# --- CONFIGURAÇÃO DA PÁGINA ---
-st.set_page_config(layout="wide") 
+# --- 1. Carregar dados ---
+# Dica: Em produção, use @st.cache_data para não recarregar toda vez
+teste3_filtered = pd.read_csv('teste3_filtered.csv')
 
-# 1. Carregar dados
-# Certifique-se que o arquivo está na mesma pasta
-try:
-    teste3_filtered = pd.read_csv('teste3_filtered.csv')
-except FileNotFoundError:
-    st.error("Arquivo 'teste3_filtered.csv' não encontrado.")
-    st.stop()
+# Definição das Regiões
+Nordeste = ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE']
+Sudeste = ['ES', 'MG', 'RJ', 'SP']
+Norte = ['AC', 'AM', 'AP', 'PA', 'RO', 'RR', 'TO']
+Centroeste = ['DF', 'GO', 'MS', 'MT']
+Sul = ['PR', 'RS', 'SC']
 
-# --- DEFINIÇÕES DE DADOS ---
-# Dicionário de Regiões para facilitar a filtragem (Substitui os ifs manuais)
-mapa_regioes = {
-    'Nordeste': ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE'],
-    'Sudeste': ['ES', 'MG', 'RJ', 'SP'],
-    'Norte': ['AC', 'AM', 'AP', 'PA', 'RO', 'RR', 'TO'],
-    'Centro-Oeste': ['DF', 'GO', 'MS', 'MT'], # Corrigido para bater com o selectbox
-    'Sul': ['PR', 'RS', 'SC']
-}
-
+# Dicionários de Tradução
 regiãosemsigla = {
-    'AC': 'Acre', 'AL': 'Alagoas', 'AM': 'Amazonas', 'AP': 'Amapá', 'BA': 'Bahia',
-    'CE': 'Ceará', 'DF': 'Distrito Federal', 'ES': 'Espírito Santo', 'GO': 'Goiás',
-    'MA': 'Maranhão', 'MG': 'Minas Gerais', 'MS': 'Mato Grosso do Sul', 'MT': 'Mato Grosso',
-    'PA': 'Pará', 'PB': 'Paraíba', 'PE': 'Pernambuco', 'PI': 'Piauí', 'PR': 'Paraná',
-    'RJ': 'Rio de Janeiro', 'RN': 'Rio Grande do Norte', 'RO': 'Rondônia', 'RR': 'Roraima',
-    'RS': 'Rio Grande do Sul', 'SC': 'Santa Catarina', 'SE': 'Sergipe', 'SP': 'São Paulo', 'TO': 'Tocantins'
+    'AC': 'Acre', 'AL': 'Alagoas', 'AM': 'Amazonas', 'AP': 'Amapá',
+    'BA': 'Bahia', 'CE': 'Ceará', 'DF': 'Distrito Federal', 'ES': 'Espírito Santo',
+    'GO': 'Goiás', 'MA': 'Maranhão', 'MG': 'Minas Gerais', 'MS': 'Mato Grosso do Sul',
+    'MT': 'Mato Grosso', 'PA': 'Pará', 'PB': 'Paraíba', 'PE': 'Pernambuco',
+    'PI': 'Piauí', 'PR': 'Paraná', 'RJ': 'Rio de Janeiro', 'RN': 'Rio Grande do Norte',
+    'RO': 'Rondônia', 'RR': 'Roraima', 'RS': 'Rio Grande do Sul', 'SC': 'Santa Catarina',
+    'SE': 'Sergipe', 'SP': 'São Paulo', 'TO': 'Tocantins'
 }
 
 payment_type_traducao = {
@@ -44,47 +36,138 @@ payment_type_traducao = {
     'debit_card': 'Cartão de Débito'
 }
 
-# Tratamento inicial dos dados
-df = teste3_filtered.copy()
-df['customer_state_full'] = df['customer_state'].map(regiãosemsigla)
-df['payment_type_portugues'] = df['payment_type'].map(payment_type_traducao)
+# Tratamento do DataFrame
+teste3_copy = teste3_filtered.copy()
+teste3_copy['customer_state_full'] = teste3_copy['customer_state'].map(regiãosemsigla)
+teste3_copy['payment_type_portugues'] = teste3_copy['payment_type'].map(payment_type_traducao)
 
-# --- INTERFACE E FILTROS ---
-st.title("Análise de Pagamentos por Região")
+# Filtros prévios por região
+clientes_nordeste = teste3_copy[teste3_copy['customer_state'].isin(Nordeste)]
+clientes_sudeste = teste3_copy[teste3_copy['customer_state'].isin(Sudeste)]
+clientes_sul = teste3_copy[teste3_copy['customer_state'].isin(Sul)]
+clientes_norte = teste3_copy[teste3_copy['customer_state'].isin(Norte)]
+clientes_centroeste = teste3_copy[teste3_copy['customer_state'].isin(Centroeste)]
 
-# Seletor de Região
-# Nota: Usei as chaves do dicionário para garantir que os nomes sejam iguais
-regiao_selecionada = st.selectbox('Selecione a Região:', list(mapa_regioes.keys()))
+# Agrupamentos para o Gráfico de Barras (pre-calculado)
+pag_dist_nordeste = clientes_nordeste.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
+pag_dist_sudeste = clientes_sudeste.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
+pag_dist_sul = clientes_sul.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
+pag_dist_norte = clientes_norte.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
+pag_dist_centroeste = clientes_centroeste.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
 
-# --- LÓGICA DE FILTRAGEM ---
-# 1. Pega a lista de estados da região selecionada
-estados_da_regiao = mapa_regioes[regiao_selecionada]
 
-# 2. Filtra o DataFrame principal apenas para essa região
-df_regiao_filtrada = df[df['customer_state'].isin(estados_da_regiao)]
+# --- 2. Interface Streamlit ---
 
-# 3. Faz o agrupamento (Groupby) apenas para os dados filtrados
-regiãopag = df_regiao_filtrada.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
+st.title("Análise de Vendas por Região")
 
-# --- GRÁFICO ---
-if not regiãopag.empty:
-    fig, ax = plt.subplots(figsize=(12, 8))
+# Seletor
+opcoes_regiao = ['Nordeste', 'Sudeste', 'Norte', 'Centro-Oeste', 'Sul']
+escolha_regiao = st.selectbox('Selecione a região:', opcoes_regiao)
 
-    sns.barplot(
-        x='count', 
-        y='customer_state_full', 
-        hue='payment_type_portugues', 
-        data=regiãopag, 
-        orient='h', 
-        palette='viridis',
-        ax=ax
-    )
+# Lógica de Seleção (Define qual DF usar baseado na escolha)
+região = pd.DataFrame() # Inicializa vazio
+regiãopag = pd.DataFrame() # Inicializa vazio
 
-    ax.set_title(f'Distribuição de Tipos de Pagamento - Região {regiao_selecionada}')
-    ax.set_xlabel('Número de Pagamentos')
-    ax.set_ylabel('Estado')
-    ax.legend(title='Tipo de Pagamento')
+if escolha_regiao == "Nordeste":
+    região = clientes_nordeste
+    regiãopag = pag_dist_nordeste
+elif escolha_regiao == "Sudeste":
+    região = clientes_sudeste
+    regiãopag = pag_dist_sudeste
+elif escolha_regiao == "Sul":
+    região = clientes_sul
+    regiãopag = pag_dist_sul
+elif escolha_regiao == "Norte":
+    região = clientes_norte
+    regiãopag = pag_dist_norte
+elif escolha_regiao == "Centro-Oeste":
+    região = clientes_centroeste
+    regiãopag = pag_dist_centroeste
 
-    st.pyplot(fig)
-else:
-    st.warning("Não há dados para a região selecionada.")
+nome_da_regiao = escolha_regiao
+
+# --- GRÁFICO 1: Barras (Tipos de Pagamento) ---
+st.subheader(f"1. Tipos de Pagamento ({nome_da_regiao})")
+
+fig1, ax1 = plt.subplots(figsize=(12, 8))
+sns.barplot(
+    x='count', 
+    y='customer_state_full', 
+    hue='payment_type_portugues', 
+    data=regiãopag, 
+    orient='h', 
+    palette='viridis',
+    ax=ax1
+)
+ax1.set_title(f'Distribuição de Tipos de Pagamento por Estado (Região {nome_da_regiao})')
+ax1.set_xlabel('Número de Pagamentos')
+ax1.set_ylabel('Estado do Cliente')
+ax1.legend(title='Tipo de Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
+st.pyplot(fig1)
+
+st.markdown("---")
+
+# --- GRÁFICO 2: Boxplot (Valor de Pagamento) ---
+st.subheader(f"2. Distribuição do Valor Pago ({nome_da_regiao})")
+
+fig2, ax2 = plt.subplots(figsize=(12, 8))
+sns.boxplot(
+    x='customer_state_full',
+    y='price', 
+    data=região, # Usa o dataframe filtrado 'região'
+    orient='v',
+    palette='viridis',
+    ax=ax2
+)
+ax2.set_title(f'Distribuição do Valor de Pagamento por Estado (Região {nome_da_regiao})')
+ax2.set_xlabel('Estado do Cliente')
+ax2.set_ylabel('Valor de Pagamento')
+st.pyplot(fig2)
+
+st.markdown("---")
+
+# --- GRÁFICO 3: Boxplot (Valor do Frete) ---
+st.subheader(f"3. Distribuição do Valor do Frete ({nome_da_regiao})")
+
+fig3, ax3 = plt.subplots(figsize=(12, 8))
+sns.boxplot(
+    x='customer_state_full',
+    y='freight_value', 
+    data=região, 
+    orient='v',
+    palette='crest',
+    ax=ax3
+)
+ax3.set_title(f'Distribuição do Valor do Frete por Estado (Região {nome_da_regiao})')
+ax3.set_xlabel('Estado do Cliente')
+ax3.set_ylabel('Valor do Frete')
+st.pyplot(fig3)
+
+st.markdown("---")
+
+# --- GRÁFICO 4: Histograma (Parcelas) ---
+st.subheader(f"4. Frequência de Parcelas ({nome_da_regiao})")
+
+fig4, ax4 = plt.subplots(figsize=(12, 8))
+
+# Cálculo seguro dos bins (garante que sejam inteiros)
+max_parcelas = região['payment_installments'].max()
+if pd.isna(max_parcelas):
+    max_parcelas = 1 # Evita erro se o DF estiver vazio
+bins = range(1, int(max_parcelas) + 2)
+
+# Desenha o histograma (adicionado sns.histplot que faltava)
+sns.histplot(
+    data=região,
+    x='payment_installments',
+    bins=bins,
+    discrete=True,
+    color='skyblue',
+    ax=ax4
+)
+
+ax4.set_title(f'Frequência do Número de Parcelas por Estado (Região {nome_da_regiao})')
+ax4.set_xlabel('Número de Parcelas')
+ax4.set_ylabel('Frequência')
+ax4.set_xticks(range(1, int(max_parcelas) + 1))
+st.pyplot(fig4)

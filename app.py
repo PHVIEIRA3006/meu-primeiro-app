@@ -123,12 +123,29 @@ elif região is clientes_centroeste:
    # sns.barplot(x='count', y='customer_state_full', hue='payment_type_portugues', data=regiãopag, orient='h', palette='viridis')
  #   ax.set_title(f'istribuição de Tipos de Pagamento por Estado (Região {nome_da_regiao})') # Um título mínimo
    # st.pyplot(fig)
+# Cria a figura e o eixo explicitamente
+fig, ax = plt.subplots(figsize=(12, 8))
 
-    fig, ax = plt.subplots(figsize=(7, 4))
-    sns.barplot(x='count', y='customer_state_full', hue='payment_type_portugues', data=regiãopag, orient='h', palette='viridis'    )
-    ax.set_ylim(0, 1) # Define o limite do eixo Y
-    ax.set_title(f'Distribuição de Tipos de Pagamento por Estado (Região  {selected_var})') # Um título mínimo
-    st.pyplot(fig)
+# Desenha o gráfico no eixo 'ax' criado acima
+sns.barplot(
+    x='count', 
+    y='customer_state_full', 
+    hue='payment_type_portugues', 
+    data=regiãopag, 
+    orient='h', 
+    palette='viridis',
+    ax=ax # Importante: vincular ao eixo
+)
 
+# Configurações de texto
+ax.set_title(f'Distribuição de Tipos de Pagamento por Estado (Região {nome_da_regiao})')
+ax.set_xlabel('Número de Pagamentos')
+ax.set_ylabel('Estado do Cliente')
+ax.legend(title='Tipo de Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+plt.tight_layout()
+
+# Em vez de plt.show(), usa-se st.pyplot()
+st.pyplot(fig)
 
 

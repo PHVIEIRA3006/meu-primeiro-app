@@ -62,7 +62,8 @@ st.title("Análise de Vendas por Região")
 opcoes_regiao = ['Centro-Oeste', 'Nordeste', 'Norte', 'Sudeste', 'Sul']
 escolha_regiao = st.selectbox('Selecione a região:', opcoes_regiao)
 
-
+lista_estados = sorted(teste3_copy['customer_state'].unique())
+estado_selecionado = st.selectbox("Selecione o Estado para visualizar o histograma:", lista_estados)
 
 # Lógica de Seleção (Define qual DF usar baseado na escolha)
 região = pd.DataFrame() # Inicializa vazio

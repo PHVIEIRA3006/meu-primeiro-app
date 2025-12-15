@@ -1,5 +1,5 @@
-
-
+#URL DO SITE https://meu-primeiro-app-phvs3006.streamlit.app/
+#URL DO KAGGLE: https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -7,11 +7,7 @@ import pandas as pd
 
 # --- 1. Carregar dados ---
 # Dica: Em produção, use @st.cache_data para não recarregar toda vez
-try:
-    teste3_filtered = pd.read_csv('teste3_filtered.csv')
-except FileNotFoundError:
-    st.error("O arquivo 'teste3_filtered.csv' não foi encontrado. Verifique o caminho.")
-    st.stop()
+teste3_filtered = pd.read_csv('teste3_filtered.csv')
 
 # Definição das Regiões
 Nordeste = ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE']
@@ -57,28 +53,20 @@ pag_dist_sul = clientes_sul.groupby(['customer_state_full', 'payment_type_portug
 pag_dist_norte = clientes_norte.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
 pag_dist_centroeste = clientes_centroeste.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
 
-# ### NOVO ###: Agrupamento para o Brasil inteiro
-pag_dist_brasil = teste3_copy.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
-
 
 # --- 2. Interface Streamlit ---
 
 st.title("Análise de Vendas por Região")
 
 # Seletor
-# ### NOVO ###: Adicionei 'Brasil' na lista
-opcoes_regiao = ['Brasil', 'Centro-Oeste','Nordeste', 'Norte',  'Sudeste', 'Sul']
+opcoes_regiao = ['Centro-Oeste','Nordeste', 'Norte', 'Sudeste',  'Sul']
 escolha_regiao = st.selectbox('Selecione a região:', opcoes_regiao)
 
 # Lógica de Seleção (Define qual DF usar baseado na escolha)
 região = pd.DataFrame() # Inicializa vazio
 regiãopag = pd.DataFrame() # Inicializa vazio
 
-# ### NOVO ###: Lógica para quando Brasil for selecionado
-if escolha_regiao == "Brasil":
-    região = teste3_copy  # Usa o dataframe completo
-    regiãopag = pag_dist_brasil
-elif escolha_regiao == "Nordeste":
+if escolha_regiao == "Nordeste":
     região = clientes_nordeste
     regiãopag = pag_dist_nordeste
 elif escolha_regiao == "Sudeste":
@@ -99,8 +87,7 @@ nome_da_regiao = escolha_regiao
 # --- GRÁFICO 1: Barras (Tipos de Pagamento) ---
 st.subheader(f"1. Tipos de Pagamento ({nome_da_regiao})")
 
-# Aumentei um pouco a altura (figsize) pois o Brasil tem 27 estados
-fig1, ax1 = plt.subplots(figsize=(12, 10)) 
+fig1, ax1 = plt.subplots(figsize=(12, 8))
 sns.barplot(
     x='count', 
     y='customer_state_full', 
@@ -110,7 +97,7 @@ sns.barplot(
     palette='viridis',
     ax=ax1
 )
-ax1.set_title(f'Distribuição de Tipos de Pagamento por Estado ({nome_da_regiao})')
+ax1.set_title(f'Distribuição de Tipos de Pagamento por Estado (Região {nome_da_regiao})')
 ax1.set_xlabel('Número de Pagamentos')
 ax1.set_ylabel('Estado do Cliente')
 ax1.legend(title='Tipo de Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -120,7 +107,7 @@ st.markdown("---")
 
 # --- GRÁFICO 2: Boxplot (Valor Pago) ---
 st.subheader(f"2. Distribuição do Preço na região ({nome_da_regiao})")
-fig2, ax2 = plt.subplots(figsize=(12, 10))
+fig2, ax2 = plt.subplots(figsize=(12, 8))
 sns.boxplot(
     x='customer_state_full',
     y='price', 
@@ -132,8 +119,6 @@ sns.boxplot(
 ax2.set_title(f'Distribuição do preço por Estado ({nome_da_regiao})')
 ax2.set_xlabel('Estado')
 ax2.set_ylabel('Valor (R$)')
-# Ajuste de rotação para caber todos os estados se for Brasil
-plt.xticks(rotation=45) 
     # Ajuste opcional para visualizar melhor (remove outliers extremos visuais)
 ax2.set_ylim(0, região['price'].quantile(0.95)) 
 st.pyplot(fig2)
@@ -143,7 +128,7 @@ st.markdown("---")
 # --- GRÁFICO 3: Boxplot (Valor do Frete) ---
 st.subheader(f"3. Distribuição do Valor do Frete ({nome_da_regiao})")
 
-fig3, ax3 = plt.subplots(figsize=(12, 10))
+fig3, ax3 = plt.subplots(figsize=(12, 8))
 sns.boxplot(
     x='customer_state_full',
     y='freight_value', 
@@ -152,10 +137,9 @@ sns.boxplot(
     palette='crest',
     ax=ax3
 )
-ax3.set_title(f'Distribuição do Valor do Frete por Estado ({nome_da_regiao})')
+ax3.set_title(f'Distribuição do Valor do Frete por Estado (Região {nome_da_regiao})')
 ax3.set_xlabel('Estado do Cliente')
 ax3.set_ylabel('Valor do Frete')
-plt.xticks(rotation=45) # Rotação para facilitar leitura dos 27 estados
 st.pyplot(fig3)
 
 st.markdown("---")
@@ -181,7 +165,7 @@ sns.histplot(
     ax=ax4
 )
 
-ax4.set_title(f'Frequência do Número de Parcelas por Estado ({nome_da_regiao})')
+ax4.set_title(f'Frequência do Número de Parcelas por Estado (Região {nome_da_regiao})')
 ax4.set_xlabel('Número de Parcelas')
 ax4.set_ylabel('Frequência')
 ax4.set_xticks(range(1, int(max_parcelas) + 1))

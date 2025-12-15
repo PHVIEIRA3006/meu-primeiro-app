@@ -1,14 +1,5 @@
 #URL DO SITE https://meu-primeiro-app-phvs3006.streamlit.app/
 #URL DO KAGGLE: https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
-Para organizar o layout no Streamlit, utilizamos o comando st.columns.
-
-Para os seletores (2x1): Criamos duas colunas logo no início.
-
-Para os gráficos (2x2): Criamos uma linha com duas colunas para os gráficos 1 e 2, e outra linha com duas colunas para os gráficos 3 e 4.
-
-Aqui está o código completo e formatado:
-
-Python
 
 import streamlit as st
 import seaborn as sns

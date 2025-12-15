@@ -59,7 +59,7 @@ pag_dist_centroeste = clientes_centroeste.groupby(['customer_state_full', 'payme
 st.title("Análise de Vendas por Região")
 
 # Seletor
-opcoes_regiao = ['Centro-Oeste','Nordeste', 'Norte', 'Sudeste',  'Sul']
+opcoes_regiao = ['Centro-Oeste', 'Nordeste', 'Norte', 'Sudeste', 'Sul']
 escolha_regiao = st.selectbox('Selecione a região:', opcoes_regiao)
 
 # Lógica de Seleção (Define qual DF usar baseado na escolha)
@@ -119,7 +119,7 @@ sns.boxplot(
 ax2.set_title(f'Distribuição do preço por Estado ({nome_da_regiao})')
 ax2.set_xlabel('Estado')
 ax2.set_ylabel('Valor (R$)')
-    # Ajuste opcional para visualizar melhor (remove outliers extremos visuais)
+# Ajuste opcional para visualizar melhor (remove outliers extremos visuais)
 ax2.set_ylim(0, região['price'].quantile(0.95)) 
 st.pyplot(fig2)
 
@@ -144,20 +144,28 @@ st.pyplot(fig3)
 
 st.markdown("---")
 
-# --- GRÁFICO 4: Histograma (Parcelas) ---
-st.subheader(f"4. Frequência de Parcelas ({nome_da_regiao})")
+# --- GRÁFICO 4: Histograma (Parcelas - Apenas Cartão de Crédito) ---
+st.subheader(f"4. Frequência de Parcelas - Cartão de Crédito ({nome_da_regiao})")
+
+# *** NOVO FILTRO AQUI ***
+# Filtra o dataframe 'região' para pegar apenas linhas onde o pagamento é cartão de crédito
+regiao_apenas_credito = região[região['payment_type'] == 'credit_card']
 
 fig4, ax4 = plt.subplots(figsize=(12, 8))
 
-# Cálculo seguro dos bins (garante que sejam inteiros)
-max_parcelas = região['payment_installments'].max()
-if pd.isna(max_parcelas):
-    max_parcelas = 1 # Evita erro se o DF estiver vazio
-bins = range(1, int(max_parcelas) + 2)
+# Cálculo seguro dos bins (usando o dataframe filtrado)
+max_parcelas = regiao_apenas_credito['payment_installments'].max()
 
-# Desenha o histograma (adicionado sns.histplot que faltava)
+if pd.isna(max_parcelas):
+    max_parcelas = 1 # Evita erro se não houver vendas no cartão
+else:
+    max_parcelas = int(max_parcelas)
+
+bins = range(1, max_parcelas + 2)
+
+# Desenha o histograma usando o dataframe filtrado (regiao_apenas_credito)
 sns.histplot(
-    data=região,
+    data=regiao_apenas_credito,
     x='payment_installments',
     bins=bins,
     discrete=True,
@@ -165,8 +173,8 @@ sns.histplot(
     ax=ax4
 )
 
-ax4.set_title(f'Frequência do Número de Parcelas por Estado (Região {nome_da_regiao})')
+ax4.set_title(f'Frequência de Parcelas (Cartão de Crédito) - Região {nome_da_regiao}')
 ax4.set_xlabel('Número de Parcelas')
 ax4.set_ylabel('Frequência')
-ax4.set_xticks(range(1, int(max_parcelas) + 1))
+ax4.set_xticks(range(1, max_parcelas + 1))
 st.pyplot(fig4)

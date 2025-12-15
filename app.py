@@ -10,22 +10,8 @@ import numpy as np
 st.set_page_config(layout="wide") 
 
 # --- 1. Carregar dados ---
-@st.cache_data
-def carregar_dados():
-    return pd.read_csv('teste3_filtered.csv')
 
-try:
-    teste3_filtered = carregar_dados()
-except FileNotFoundError:
-    st.error("Arquivo 'teste3_filtered.csv' não encontrado. Usando dados fictícios.")
-    dados_dict = {
-        'customer_state': np.random.choice(['SP', 'RJ', 'MG', 'BA', 'RS'], 100),
-        'payment_type': np.random.choice(['credit_card', 'boleto', 'voucher'], 100),
-        'price': np.random.uniform(10, 1000, 100),
-        'freight_value': np.random.uniform(5, 50, 100),
-        'payment_installments': np.random.randint(1, 12, 100)
-    }
-    teste3_filtered = pd.DataFrame(dados_dict)
+teste3_filtered = pd.read_csv('teste3_filtered.csv')
 
 # Definição das Regiões
 Nordeste = ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE']
@@ -108,7 +94,7 @@ titulo_contexto = f"Região {nome_da_regiao}"
 
 # Cria coluna 'Local' unificada
 if estado_selecionado == 'Todos':
-    dados_visuais['Local'] = nome_da_regiao
+    dados_visuais['Local'] =  nome_da_regiao
 else:
     dados_visuais = dados_visuais[dados_visuais['customer_state_full'] == estado_selecionado]
     dados_visuais['Local'] = dados_visuais['customer_state_full']
@@ -152,12 +138,12 @@ with row1_col1:
     ax1.set_title('') 
     ax1.set_xlabel('Local')
     ax1.set_ylabel('Qtd. Pedidos')
-    ax1.tick_params(axis='x', rotation=45) 
+    ax1.tick_params(axis='x', rotation=45) # Rotação para evitar sobreposição de nomes
     ax1.legend(title='Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
     st.pyplot(fig1)
 
 with row1_col2:
-    st.subheader(f"2. Distribuição do Preço ({titulo_contexto})")
+    st.subheader(f"2. Distribuição do Preço({titulo_contexto})")
     fig2, ax2 = plt.subplots(figsize=(10, 6))
     sns.boxplot(x='Local', y='price', data=dados_visuais, orient='v', palette='viridis', showfliers=mostrar_outliers, ax=ax2)
     ax2.set_title(f'')
@@ -171,7 +157,7 @@ st.markdown("---")
 row2_col1, row2_col2 = st.columns(2)
 
 with row2_col1:
-    st.subheader(f"3. Valor do Frete ({titulo_contexto})")
+    st.subheader(f"3. Valor do Frete({titulo_contexto})")
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     sns.boxplot(x='Local', y='freight_value', data=dados_visuais, orient='v', palette='crest', showfliers=mostrar_outliers, ax=ax3)
     ax3.set_title(f'Frete - {titulo_contexto}')
@@ -202,34 +188,13 @@ st.markdown("---")
 
 row3_col1, row3_col2 = st.columns(2)
 
-# --- GRÁFICO 5: Dispersão Preço x Frete (COM FILTRO DE OUTLIERS MANUAL) ---
+# --- GRÁFICO 5: Dispersão Preço x Frete ---
 with row3_col1:
     st.subheader(f"5. Relação Preço x Frete ({titulo_contexto})")
     
     dados_scatter = dados_visuais.copy()
     dados_scatter = dados_scatter.rename(columns={'payment_type_portugues': 'Forma de pagamento'})
     
-    # *** LOGICA DE FILTRO DE OUTLIERS PARA SCATTERPLOT ***
-    if not mostrar_outliers and not dados_scatter.empty:
-        # Calcula IQR para Price
-        Q1_price = dados_scatter['price'].quantile(0.25)
-        Q3_price = dados_scatter['price'].quantile(0.75)
-        IQR_price = Q3_price - Q1_price
-        limite_superior_price = Q3_price + 1.5 * IQR_price
-
-        # Calcula IQR para Freight
-        Q1_freight = dados_scatter['freight_value'].quantile(0.25)
-        Q3_freight = dados_scatter['freight_value'].quantile(0.75)
-        IQR_freight = Q3_freight - Q1_freight
-        limite_superior_freight = Q3_freight + 1.5 * IQR_freight
-
-        # Filtra os dados
-        dados_scatter = dados_scatter[
-            (dados_scatter['price'] <= limite_superior_price) & 
-            (dados_scatter['freight_value'] <= limite_superior_freight)
-        ]
-    # *****************************************************
-
     fig5, ax5 = plt.subplots(figsize=(10, 6))
     
     if not dados_scatter.empty:
@@ -244,7 +209,7 @@ with row3_col1:
         )
         ax5.grid(True, linestyle='--', alpha=0.7)
     else:
-        st.info("Sem dados para exibir dispersão (ou todos foram filtrados como outliers).")
+        st.info("Sem dados para exibir dispersão.")
         
     ax5.set_title(f'Preço vs Frete - {titulo_contexto}')
     ax5.set_xlabel('Preço do Produto')

@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# Configuração da página para usar largura total (opcional, mas ajuda no layout 2x2)
+# Configuração da página
 st.set_page_config(layout="wide") 
 
 # --- 1. Carregar dados ---
@@ -53,13 +53,14 @@ clientes_centroeste = teste3_copy[teste3_copy['customer_state'].isin(Centroeste)
 
 st.title("Análise de Vendas por Região e Estado")
 
-# --- SELETORES (LAYOUT 2x1) ---
-# Cria duas colunas para os filtros
-col_filtro1, col_filtro2 = st.columns(2)
+# --- SELETORES (LAYOUT 3x1) ---
+# AGORA SÃO 3 COLUNAS
+col_filtro1, col_filtro2, col_filtro3 = st.columns(3)
 
 regiao_raw = pd.DataFrame() 
 nome_da_regiao = ""
 
+# Coluna 1: Região
 with col_filtro1:
     opcoes_regiao = ['Centro-Oeste', 'Nordeste', 'Norte', 'Sudeste', 'Sul']
     escolha_regiao = st.selectbox('Selecione a região:', opcoes_regiao)
@@ -77,10 +78,18 @@ with col_filtro1:
     elif escolha_regiao == "Centro-Oeste":
         regiao_raw = clientes_centroeste
 
+# Coluna 2: Estado
 with col_filtro2:
     lista_estados = sorted(regiao_raw['customer_state_full'].unique())
     lista_estados.insert(0, 'Todos')
     estado_selecionado = st.selectbox("Selecione o Estado:", lista_estados)
+
+# Coluna 3: Outliers (NOVO)
+with col_filtro3:
+    st.write("Configuração Visual:")
+    # Checkbox para mostrar ou esconder outliers
+    # value=True significa que começa marcado (mostrando outliers)
+    mostrar_outliers = st.checkbox("Mostrar Outliers nos Gráficos", value=True)
 
 # --- LÓGICA DO FILTRO MESTRE ---
 dados_visuais = regiao_raw.copy()
@@ -94,7 +103,6 @@ st.markdown("---")
 
 # --- GRÁFICOS (LAYOUT 2x2) ---
 
-# PRIMEIRA LINHA DE GRÁFICOS (Chart 1 e Chart 2)
 row1_col1, row1_col2 = st.columns(2)
 
 # --- GRÁFICO 1 ---
@@ -103,7 +111,7 @@ with row1_col1:
     
     dados_agrupados_pagamento = dados_visuais.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
 
-    fig1, ax1 = plt.subplots(figsize=(10, 6)) # Ajustei figsize para caber melhor na coluna
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
     sns.barplot(
         x='count', 
         y='customer_state_full', 
@@ -113,7 +121,7 @@ with row1_col1:
         palette='viridis',
         ax=ax1
     )
-    ax1.set_title(f'Distribuição - {titulo_contexto}') # Título mais curto para não quebrar
+    ax1.set_title(f'Distribuição - {titulo_contexto}') 
     ax1.set_xlabel('Qtd. Pedidos')
     ax1.set_ylabel('Estado')
     ax1.legend(title='Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -124,27 +132,28 @@ with row1_col2:
     st.subheader(f"2. Distribuição do Preço")
 
     fig2, ax2 = plt.subplots(figsize=(10, 6))
+    
+    # Aplicação do filtro de outliers (showfliers)
     sns.boxplot(
         x='customer_state_full',
         y='price', 
         data=dados_visuais, 
         orient='v', 
         palette='viridis',
+        showfliers=mostrar_outliers, # AQUI ESTÁ A MUDANÇA
         ax=ax2
     )
     ax2.set_title(f'Preço - {titulo_contexto}')
     ax2.set_xlabel('Estado')
     ax2.set_ylabel('Valor (R$)')
 
-    if not dados_visuais.empty:
-        ax2.set_ylim(0, dados_visuais['price'].quantile(0.95)) 
+    # Removi o set_ylim fixo para o gráfico se ajustar automaticamente ao checkbox
     st.pyplot(fig2)
 
 
 st.markdown("---")
 
 
-# SEGUNDA LINHA DE GRÁFICOS (Chart 3 e Chart 4)
 row2_col1, row2_col2 = st.columns(2)
 
 # --- GRÁFICO 3 ---
@@ -152,12 +161,15 @@ with row2_col1:
     st.subheader(f"3. Valor do Frete")
 
     fig3, ax3 = plt.subplots(figsize=(10, 6))
+    
+    # Aplicação do filtro de outliers (showfliers)
     sns.boxplot(
         x='customer_state_full',
         y='freight_value', 
         data=dados_visuais, 
         orient='v',
         palette='crest',
+        showfliers=mostrar_outliers, # AQUI ESTÁ A MUDANÇA
         ax=ax3
     )
     ax3.set_title(f'Frete - {titulo_contexto}')
@@ -193,6 +205,11 @@ with row2_col2:
         )
 
         ax4.set_title(f'Freq. Parcelas - {titulo_contexto}')
+        ax4.set_xlabel('Nº Parcelas')
+        ax4.set_ylabel('Frequência')
+        ax4.set_xticks(range(1, max_parcelas + 1))
+    
+    st.pyplot(fig4)
         ax4.set_xlabel('Nº Parcelas')
         ax4.set_ylabel('Frequência')
         ax4.set_xticks(range(1, max_parcelas + 1))

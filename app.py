@@ -103,7 +103,14 @@ else:
     titulo_contexto = estado_selecionado
 
 st.markdown("---")
+#informações
 
+    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+    kpi1.metric("Frete Médio (Região)", f"R$ {dados_regiao['freight_value'].mean():.2f}")
+    kpi2.metric("Pagamento Principal", f"{dados_regiao['payment_type_portugues'].mode()[0]}")
+    kpi3.metric("Preço Médio", f"R$ {dados_regiao['price'].mean():.2f}")
+    kpi4.metric("Total de Pedidos", f"{len(dados_regiao)}")
+    
 # --- GRÁFICOS (LAYOUT 2x2) ---
 
 row1_col1, row1_col2 = st.columns(2)

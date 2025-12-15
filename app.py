@@ -87,6 +87,11 @@ elif escolha_regiao == "Centro-Oeste":
 
 nome_da_regiao = escolha_regiao
 
+#seletor de estaos
+lista_estados = sorted(região['customer_state'].unique())
+estado_selecionado = st.selectbox("Selecione o Estado para visualizar o histograma:", lista_estados)
+
+
 # --- GRÁFICO 1: Barras (Tipos de Pagamento) ---
 st.subheader(f"1. Tipos de Pagamento ({nome_da_regiao})")
 

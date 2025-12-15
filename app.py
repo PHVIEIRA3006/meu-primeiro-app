@@ -108,7 +108,7 @@ titulo_contexto = f"Região {nome_da_regiao}"
 
 # Cria coluna 'Local' unificada
 if estado_selecionado == 'Todos':
-    dados_visuais['Local'] = f"Região {nome_da_regiao}"
+    dados_visuais['Local'] =  {nome_da_regiao}
 else:
     dados_visuais = dados_visuais[dados_visuais['customer_state_full'] == estado_selecionado]
     dados_visuais['Local'] = dados_visuais['customer_state_full']
@@ -145,11 +145,12 @@ st.markdown("---")
 row1_col1, row1_col2 = st.columns(2)
 
 with row1_col1:
-    st.subheader(f"1. Tipos de Pagamento")
+    st.subheader(f"1. Tipos de Pagamento ({titulo_contexto})")
     dados_agrupados_pagamento = dados_visuais.groupby(['Local', 'payment_type_portugues']).size().reset_index(name='count')
     fig1, ax1 = plt.subplots(figsize=(10, 6))
     sns.barplot(x='count', y='Local', hue='payment_type_portugues', data=dados_agrupados_pagamento, orient='h', palette='viridis', ax=ax1)
-    ax1.set_title(f'Distribuição - {titulo_contexto}') 
+    ax1.set_title('') 
+
     ax1.set_xlabel('Qtd. Pedidos')
     ax1.set_ylabel('Local')
     ax1.legend(title='Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -190,7 +191,7 @@ with row2_col2:
         if pd.isna(max_parcelas): max_parcelas = 1
         max_parcelas = int(max_parcelas)
         bins = range(1, max_parcelas + 2)
-        sns.histplot(data=dados_apenas_credito, x='payment_installments', bins=bins, discrete=True, color='skyblue', ax=ax4)
+        sns.histplot(data=dados_apenas_credito, x='payment_installments', bins=16, discrete=True, color='skyblue', ax=ax4)
         ax4.set_title(f'Freq. Parcelas - {titulo_contexto}')
         ax4.set_xlabel('Nº Parcelas')
         ax4.set_ylabel('Frequência')

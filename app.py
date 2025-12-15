@@ -35,7 +35,6 @@ payment_type_traducao = {
 
 # Tratamento do DataFrame
 teste3_copy = teste3_filtered.copy()
-# Cria a coluna com nomes completos AQUI
 teste3_copy['customer_state_full'] = teste3_copy['customer_state'].map(regiãosemsigla)
 teste3_copy['payment_type_portugues'] = teste3_copy['payment_type'].map(payment_type_traducao)
 
@@ -46,151 +45,144 @@ clientes_sul = teste3_copy[teste3_copy['customer_state'].isin(Sul)]
 clientes_norte = teste3_copy[teste3_copy['customer_state'].isin(Norte)]
 clientes_centroeste = teste3_copy[teste3_copy['customer_state'].isin(Centroeste)]
 
-# Agrupamentos para o Gráfico de Barras (pre-calculado)
-pag_dist_nordeste = clientes_nordeste.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
-pag_dist_sudeste = clientes_sudeste.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
-pag_dist_sul = clientes_sul.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
-pag_dist_norte = clientes_norte.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
-pag_dist_centroeste = clientes_centroeste.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
-
-
 # --- 2. Interface Streamlit ---
 
-st.title("Análise de Vendas por Região")
+st.title("Análise de Vendas por Região e Estado")
 
-# Seletor de Região
+# --- SELETOR 1: REGIÃO ---
 opcoes_regiao = ['Centro-Oeste', 'Nordeste', 'Norte', 'Sudeste', 'Sul']
 escolha_regiao = st.selectbox('Selecione a região:', opcoes_regiao)
 
-# Lógica de Seleção (Define qual DF usar baseado na escolha)
-região = pd.DataFrame() 
-regiãopag = pd.DataFrame() 
+# Define qual DF base usar (Raw data da região)
+regiao_raw = pd.DataFrame() 
 
 if escolha_regiao == "Nordeste":
-    região = clientes_nordeste
-    regiãopag = pag_dist_nordeste
+    regiao_raw = clientes_nordeste
 elif escolha_regiao == "Sudeste":
-    região = clientes_sudeste
-    regiãopag = pag_dist_sudeste
+    regiao_raw = clientes_sudeste
 elif escolha_regiao == "Sul":
-    região = clientes_sul
-    regiãopag = pag_dist_sul
+    regiao_raw = clientes_sul
 elif escolha_regiao == "Norte":
-    região = clientes_norte
-    regiãopag = pag_dist_norte
+    regiao_raw = clientes_norte
 elif escolha_regiao == "Centro-Oeste":
-    região = clientes_centroeste
-    regiãopag = pag_dist_centroeste
+    regiao_raw = clientes_centroeste
 
 nome_da_regiao = escolha_regiao
 
-# --- SELETOR DE ESTADOS (Para o Gráfico 4) ---
-# Mudança: Usando 'customer_state_full' em vez de 'customer_state'
-lista_estados = sorted(região['customer_state_full'].unique())
+# --- SELETOR 2: ESTADO (MOVIDO PARA CIMA) ---
+lista_estados = sorted(regiao_raw['customer_state_full'].unique())
 lista_estados.insert(0, 'Todos')
-estado_selecionado = st.selectbox("Selecione o Estado para visualizar o histograma de parcelas:", lista_estados)
+estado_selecionado = st.selectbox("Selecione o Estado (ou 'Todos' para visão regional):", lista_estados)
 
+# --- LÓGICA DO FILTRO MESTRE ---
+# Aqui criamos o dataframe 'dados_visuais' que será usado em TODOS os gráficos
+dados_visuais = regiao_raw.copy()
+titulo_contexto = f"Região {nome_da_regiao}"
+
+if estado_selecionado != 'Todos':
+    # Filtra apenas o estado selecionado
+    dados_visuais = dados_visuais[dados_visuais['customer_state_full'] == estado_selecionado]
+    titulo_contexto = estado_selecionado
 
 # --- GRÁFICO 1: Barras (Tipos de Pagamento) ---
-st.subheader(f"1. Tipos de Pagamento ({nome_da_regiao})")
+st.subheader(f"1. Tipos de Pagamento ({titulo_contexto})")
+
+# É necessário recalcular o agrupamento baseado nos dados filtrados (seja Região inteira ou 1 Estado)
+dados_agrupados_pagamento = dados_visuais.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
 
 fig1, ax1 = plt.subplots(figsize=(12, 8))
 sns.barplot(
     x='count', 
     y='customer_state_full', 
     hue='payment_type_portugues', 
-    data=regiãopag, 
+    data=dados_agrupados_pagamento, 
     orient='h', 
     palette='viridis',
     ax=ax1
 )
-ax1.set_title(f'Distribuição de Tipos de Pagamento por Estado (Região {nome_da_regiao})')
-ax1.set_xlabel('Número de Pagamentos')
-ax1.set_ylabel('Estado do Cliente')
+ax1.set_title(f'Distribuição de Tipos de Pagamento - {titulo_contexto}')
+ax1.set_xlabel('Quantidade de Pedidos')
+ax1.set_ylabel('Estado')
 ax1.legend(title='Tipo de Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
 st.pyplot(fig1)
 
 st.markdown("---")
 
 # --- GRÁFICO 2: Boxplot (Valor Pago) ---
-st.subheader(f"2. Distribuição do Preço na região ({nome_da_regiao})")
+st.subheader(f"2. Distribuição do Preço ({titulo_contexto})")
+
 fig2, ax2 = plt.subplots(figsize=(12, 8))
 sns.boxplot(
     x='customer_state_full',
     y='price', 
-    data=região, 
+    data=dados_visuais, # Usa o dataframe filtrado
     orient='v', 
     palette='viridis',
     ax=ax2
     )
-ax2.set_title(f'Distribuição do preço por Estado ({nome_da_regiao})')
+ax2.set_title(f'Distribuição do preço - {titulo_contexto}')
 ax2.set_xlabel('Estado')
 ax2.set_ylabel('Valor (R$)')
-# Ajuste opcional: remove outliers extremos visuais
-ax2.set_ylim(0, região['price'].quantile(0.95)) 
+
+# Ajuste seguro dos limites Y para evitar erros se o DF estiver vazio
+if not dados_visuais.empty:
+    ax2.set_ylim(0, dados_visuais['price'].quantile(0.95)) 
+
 st.pyplot(fig2)
 
 st.markdown("---")
 
 # --- GRÁFICO 3: Boxplot (Valor do Frete) ---
-st.subheader(f"3. Distribuição do Valor do Frete ({nome_da_regiao})")
+st.subheader(f"3. Distribuição do Valor do Frete ({titulo_contexto})")
 
 fig3, ax3 = plt.subplots(figsize=(12, 8))
 sns.boxplot(
     x='customer_state_full',
     y='freight_value', 
-    data=região, 
+    data=dados_visuais, # Usa o dataframe filtrado
     orient='v',
     palette='crest',
     ax=ax3
 )
-ax3.set_title(f'Distribuição do Valor do Frete por Estado (Região {nome_da_regiao})')
-ax3.set_xlabel('Estado do Cliente')
+ax3.set_title(f'Distribuição do Valor do Frete - {titulo_contexto}')
+ax3.set_xlabel('Estado')
 ax3.set_ylabel('Valor do Frete')
 st.pyplot(fig3)
 
 st.markdown("---")
 
 # --- GRÁFICO 4: Histograma (Parcelas - Apenas Cartão de Crédito) ---
-# Título dinâmico
-titulo_grafico = f"4. Frequência de Parcelas - Cartão de Crédito - {estado_selecionado}"
-st.subheader(titulo_grafico)
+st.subheader(f"4. Frequência de Parcelas - Cartão de Crédito ({titulo_contexto})")
 
-# 1. Filtro de Estado (Se não for 'Todos')
-dados_para_grafico = região.copy()
-
-if estado_selecionado != 'Todos':
-    # Mudança: Filtrando pela coluna de nome completo 'customer_state_full'
-    dados_para_grafico = dados_para_grafico[dados_para_grafico['customer_state_full'] == estado_selecionado]
-
-# 2. Filtro de Cartão de Crédito
-regiao_apenas_credito = dados_para_grafico[dados_para_grafico['payment_type'] == 'credit_card']
+# Filtra apenas Crédito (baseado no DF que já pode estar filtrado por estado)
+dados_apenas_credito = dados_visuais[dados_visuais['payment_type'] == 'credit_card']
 
 fig4, ax4 = plt.subplots(figsize=(12, 8))
 
 # Cálculo seguro dos bins
-max_parcelas = regiao_apenas_credito['payment_installments'].max()
-
-if pd.isna(max_parcelas):
-    max_parcelas = 1 
-    st.warning(f"Não há dados de cartão de crédito para {estado_selecionado}.")
+if dados_apenas_credito.empty:
+    st.warning(f"Não há dados de cartão de crédito para {titulo_contexto}.")
+    max_parcelas = 1
 else:
+    max_parcelas = dados_apenas_credito['payment_installments'].max()
+    if pd.isna(max_parcelas): max_parcelas = 1
     max_parcelas = int(max_parcelas)
 
-bins = range(1, max_parcelas + 2)
+    bins = range(1, max_parcelas + 2)
 
-# Desenha o histograma
-sns.histplot(
-    data=regiao_apenas_credito,
-    x='payment_installments',
-    bins=bins,
-    discrete=True,
-    color='skyblue',
-    ax=ax4
-)
+    sns.histplot(
+        data=dados_apenas_credito,
+        x='payment_installments',
+        bins=bins,
+        discrete=True,
+        color='skyblue',
+        ax=ax4
+    )
 
-ax4.set_title(f'Frequência de Parcelas (Cartão de Crédito) - {estado_selecionado}')
-ax4.set_xlabel('Número de Parcelas')
-ax4.set_ylabel('Frequência')
+    ax4.set_title(f'Frequência de Parcelas (Cartão de Crédito) - {titulo_contexto}')
+    ax4.set_xlabel('Número de Parcelas')
+    ax4.set_ylabel('Frequência')
+    ax4.set_xticks(range(1, max_parcelas + 1))
+    st.pyplot(fig4)
 ax4.set_xticks(range(1, max_parcelas + 1))
 st.pyplot(fig4)

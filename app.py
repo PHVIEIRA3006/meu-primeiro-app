@@ -1,6 +1,5 @@
 #URL DO SITE https://meu-primeiro-app-phvs3006.streamlit.app/
 #URL DO KAGGLE: https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce
-
 import streamlit as st
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -54,7 +53,6 @@ clientes_centroeste = teste3_copy[teste3_copy['customer_state'].isin(Centroeste)
 st.title("Análise de Vendas por Região e Estado")
 
 # --- SELETORES (LAYOUT 3x1) ---
-# AGORA SÃO 3 COLUNAS
 col_filtro1, col_filtro2, col_filtro3 = st.columns(3)
 
 regiao_raw = pd.DataFrame() 
@@ -66,7 +64,6 @@ with col_filtro1:
     escolha_regiao = st.selectbox('Selecione a região:', opcoes_regiao)
     nome_da_regiao = escolha_regiao
     
-    # Lógica de seleção do DF base
     if escolha_regiao == "Nordeste":
         regiao_raw = clientes_nordeste
     elif escolha_regiao == "Sudeste":
@@ -84,19 +81,25 @@ with col_filtro2:
     lista_estados.insert(0, 'Todos')
     estado_selecionado = st.selectbox("Selecione o Estado:", lista_estados)
 
-# Coluna 3: Outliers (NOVO)
+# Coluna 3: Outliers
 with col_filtro3:
     st.write("Configuração Visual:")
-    # Checkbox para mostrar ou esconder outliers
-    # value=True significa que começa marcado (mostrando outliers)
     mostrar_outliers = st.checkbox("Mostrar Outliers nos Gráficos", value=True)
 
-# --- LÓGICA DO FILTRO MESTRE ---
+# --- LÓGICA DO FILTRO MESTRE E AGRUPAMENTO ---
 dados_visuais = regiao_raw.copy()
 titulo_contexto = f"Região {nome_da_regiao}"
 
-if estado_selecionado != 'Todos':
+# *** AQUI ESTÁ A MUDANÇA PRINCIPAL ***
+# Criamos uma coluna 'Local' que será usada nos eixos dos gráficos
+if estado_selecionado == 'Todos':
+    # Se for "Todos", definimos o nome como "Região X" para todas as linhas.
+    # Isso faz o gráfico agrupar tudo numa coisa só.
+    dados_visuais['Local'] = f"Região {nome_da_regiao}"
+else:
+    # Se for um estado específico, filtramos e usamos o nome do estado.
     dados_visuais = dados_visuais[dados_visuais['customer_state_full'] == estado_selecionado]
+    dados_visuais['Local'] = dados_visuais['customer_state_full']
     titulo_contexto = estado_selecionado
 
 st.markdown("---")
@@ -105,16 +108,17 @@ st.markdown("---")
 
 row1_col1, row1_col2 = st.columns(2)
 
-# --- GRÁFICO 1 ---
+# --- GRÁFICO 1: Tipos de Pagamento ---
 with row1_col1:
     st.subheader(f"1. Tipos de Pagamento")
     
-    dados_agrupados_pagamento = dados_visuais.groupby(['customer_state_full', 'payment_type_portugues']).size().reset_index(name='count')
+    # Agrupamos pela nova coluna 'Local' em vez de 'customer_state_full'
+    dados_agrupados_pagamento = dados_visuais.groupby(['Local', 'payment_type_portugues']).size().reset_index(name='count')
 
     fig1, ax1 = plt.subplots(figsize=(10, 6))
     sns.barplot(
         x='count', 
-        y='customer_state_full', 
+        y='Local', # Usamos a coluna unificada
         hue='payment_type_portugues', 
         data=dados_agrupados_pagamento, 
         orient='h', 
@@ -123,31 +127,28 @@ with row1_col1:
     )
     ax1.set_title(f'Distribuição - {titulo_contexto}') 
     ax1.set_xlabel('Qtd. Pedidos')
-    ax1.set_ylabel('Estado')
+    ax1.set_ylabel('Local')
     ax1.legend(title='Pagamento', bbox_to_anchor=(1.05, 1), loc='upper left')
     st.pyplot(fig1)
 
-# --- GRÁFICO 2 ---
+# --- GRÁFICO 2: Preço ---
 with row1_col2:
     st.subheader(f"2. Distribuição do Preço")
 
     fig2, ax2 = plt.subplots(figsize=(10, 6))
     
-    # Aplicação do filtro de outliers (showfliers)
     sns.boxplot(
-        x='customer_state_full',
+        x='Local', # Usamos a coluna unificada
         y='price', 
         data=dados_visuais, 
         orient='v', 
         palette='viridis',
-        showfliers=mostrar_outliers, # AQUI ESTÁ A MUDANÇA
+        showfliers=mostrar_outliers,
         ax=ax2
     )
     ax2.set_title(f'Preço - {titulo_contexto}')
-    ax2.set_xlabel('Estado')
+    ax2.set_xlabel('Local')
     ax2.set_ylabel('Valor (R$)')
-
-    # Removi o set_ylim fixo para o gráfico se ajustar automaticamente ao checkbox
     st.pyplot(fig2)
 
 
@@ -156,28 +157,27 @@ st.markdown("---")
 
 row2_col1, row2_col2 = st.columns(2)
 
-# --- GRÁFICO 3 ---
+# --- GRÁFICO 3: Frete ---
 with row2_col1:
     st.subheader(f"3. Valor do Frete")
 
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     
-    # Aplicação do filtro de outliers (showfliers)
     sns.boxplot(
-        x='customer_state_full',
+        x='Local', # Usamos a coluna unificada
         y='freight_value', 
         data=dados_visuais, 
         orient='v',
         palette='crest',
-        showfliers=mostrar_outliers, # AQUI ESTÁ A MUDANÇA
+        showfliers=mostrar_outliers,
         ax=ax3
     )
     ax3.set_title(f'Frete - {titulo_contexto}')
-    ax3.set_xlabel('Estado')
+    ax3.set_xlabel('Local')
     ax3.set_ylabel('Valor Frete')
     st.pyplot(fig3)
 
-# --- GRÁFICO 4 ---
+# --- GRÁFICO 4: Parcelas ---
 with row2_col2:
     st.subheader(f"4. Parcelas (Crédito)")
 
@@ -206,6 +206,10 @@ with row2_col2:
 
         ax4.set_title(f'Freq. Parcelas - {titulo_contexto}')
         ax4.set_xlabel('Nº Parcelas')
+        ax4.set_ylabel('Frequência')
+        ax4.set_xticks(range(1, max_parcelas + 1))
+    
+    st.pyplot(fig4)
         ax4.set_ylabel('Frequência')
         ax4.set_xticks(range(1, max_parcelas + 1))
     

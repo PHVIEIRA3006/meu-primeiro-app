@@ -148,16 +148,7 @@ with row1_col1:
     st.subheader(f"1. Tipos de Pagamento ({titulo_contexto})")
     dados_agrupados_pagamento = dados_visuais.groupby(['Local', 'payment_type_portugues']).size().reset_index(name='count')
     fig1, ax1 = plt.subplots(figsize=(10, 6))
- sns.barplot(
-        x='Local',  # Local agora no eixo X
-        y='count',  # Contagem agora no eixo Y
-        hue='payment_type_portugues', 
-        data=dados_agrupados_pagamento, 
-        orient='v', # Orientação Vertical 
-        palette='viridis', 
-        ax=ax1
-    )
-    
+    sns.barplot(x='Local',y='count',hue='payment_type_portugues',data=dados_agrupados_pagamento, orient='v',palette='viridis',ax=ax1)
     ax1.set_title('') 
     ax1.set_xlabel('Local')
     ax1.set_ylabel('Qtd. Pedidos')

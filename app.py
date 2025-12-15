@@ -26,15 +26,13 @@ regiãosemsigla = {
     'MT': 'Mato Grosso', 'PA': 'Pará', 'PB': 'Paraíba', 'PE': 'Pernambuco',
     'PI': 'Piauí', 'PR': 'Paraná', 'RJ': 'Rio de Janeiro', 'RN': 'Rio Grande do Norte',
     'RO': 'Rondônia', 'RR': 'Roraima', 'RS': 'Rio Grande do Sul', 'SC': 'Santa Catarina',
-    'SE': 'Sergipe', 'SP': 'São Paulo', 'TO': 'Tocantins'
-}
+    'SE': 'Sergipe', 'SP': 'São Paulo', 'TO': 'Tocantins'}
 
 payment_type_traducao = {
     'credit_card': 'Cartão de Crédito',
     'boleto': 'Boleto',
     'voucher': 'Voucher',
-    'debit_card': 'Cartão de Débito'
-}
+    'debit_card': 'Cartão de Débito'}
 
 # Tratamento do DataFrame
 teste3_copy = teste3_filtered.copy()
@@ -105,11 +103,7 @@ else:
 st.markdown("---")
 #informações
 
-    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
-    kpi1.metric("Frete Médio (Região)", f"R$ {dados_regiao['freight_value'].mean():.2f}")
-    kpi2.metric("Pagamento Principal", f"{dados_regiao['payment_type_portugues'].mode()[0]}")
-    kpi3.metric("Preço Médio", f"R$ {dados_regiao['price'].mean():.2f}")
-    kpi4.metric("Total de Pedidos", f"{len(dados_regiao)}")
+
     
 # --- GRÁFICOS (LAYOUT 2x2) ---
 

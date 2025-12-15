@@ -72,7 +72,7 @@ nome_da_regiao = escolha_regiao
 # --- SELETOR 2: ESTADO (MOVIDO PARA CIMA) ---
 lista_estados = sorted(regiao_raw['customer_state_full'].unique())
 lista_estados.insert(0, 'Todos')
-estado_selecionado = st.selectbox("Selecione o Estado (ou 'Todos' para visão regional):", lista_estados)
+estado_selecionado = st.selectbox("Selecione o Estado para uma visão mais detalhada:", lista_estados)
 
 # --- LÓGICA DO FILTRO MESTRE ---
 # Aqui criamos o dataframe 'dados_visuais' que será usado em TODOS os gráficos

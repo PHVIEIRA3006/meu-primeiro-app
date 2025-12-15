@@ -210,8 +210,4 @@ with row2_col2:
         ax4.set_xticks(range(1, max_parcelas + 1))
     
     st.pyplot(fig4)
-        ax4.set_xlabel('Nº Parcelas')
-        ax4.set_ylabel('Frequência')
-        ax4.set_xticks(range(1, max_parcelas + 1))
     
-    st.pyplot(fig4)

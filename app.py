@@ -108,7 +108,7 @@ titulo_contexto = f"Região {nome_da_regiao}"
 
 # Cria coluna 'Local' unificada
 if estado_selecionado == 'Todos':
-    dados_visuais['Local'] =  {nome_da_regiao}
+    dados_visuais['Local'] =  nome_da_regiao
 else:
     dados_visuais = dados_visuais[dados_visuais['customer_state_full'] == estado_selecionado]
     dados_visuais['Local'] = dados_visuais['customer_state_full']

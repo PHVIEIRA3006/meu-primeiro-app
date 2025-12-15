@@ -232,7 +232,7 @@ with row3_col2:
         faixa_counts = dados_faixas['faixa_preco'].value_counts().sort_index()
 
         fig6, ax6 = plt.subplots(figsize=(10, 6))
-        sns.barplot(x=faixa_counts.index, y=faixa_counts.values, palette='Greens', ax=ax6)
+        sns.barplot(x=faixa_counts.index, y=faixa_counts.values, color='seagreen', ax=ax6)
 
         ax6.set_title(f"Vendas por Faixa - {titulo_contexto}")
         ax6.set_ylabel("Qtd. Pedidos")

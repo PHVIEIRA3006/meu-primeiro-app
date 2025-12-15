@@ -86,7 +86,8 @@ nome_da_regiao = escolha_regiao
 
 #seletor de estaos
 lista_estados = sorted(região['customer_state'].unique())
-estado_selecionado = st.selectbox("Selecione o Estado para visualizar o histograma:", 'Todos', lista_estados)
+lista_estados2= ['todos', lista_estados]
+estado_selecionado = st.selectbox("Selecione o Estado para visualizar o histograma:", lista_estados2)
 
 
 

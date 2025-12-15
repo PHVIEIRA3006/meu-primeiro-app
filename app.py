@@ -10,12 +10,8 @@ import numpy as np
 st.set_page_config(layout="wide") 
 
 # --- 1. Carregar dados ---
-@st.cache_data
-def carregar_dados():
-    return pd.read_csv('teste3_filtered.csv')
 
-    teste3_filtered = carregar_dados()
-
+    teste3_filtered = pd.read_csv('teste3_filtered.csv')
 
 # Definição das Regiões
 Nordeste = ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE']

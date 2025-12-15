@@ -148,7 +148,7 @@ with row1_col1:
     st.subheader(f"1. Tipos de Pagamento ({titulo_contexto})")
     dados_agrupados_pagamento = dados_visuais.groupby(['Local', 'payment_type_portugues']).size().reset_index(name='count')
     fig1, ax1 = plt.subplots(figsize=(10, 6))
-    sns.barplot(x='count', y='Local', hue='payment_type_portugues', data=dados_agrupados_pagamento, orient='h', palette='viridis', ax=ax1)
+    sns.barplot( x='Local' y='count',, hue='payment_type_portugues', data=dados_agrupados_pagamento, orient='v', palette='viridis', ax=ax1)
     ax1.set_title('') 
 
     ax1.set_xlabel('Qtd. Pedidos')
@@ -157,10 +157,10 @@ with row1_col1:
     st.pyplot(fig1)
 
 with row1_col2:
-    st.subheader(f"2. Distribuição do Preço")
+    st.subheader(f"2. Distribuição do Preço({titulo_contexto})")
     fig2, ax2 = plt.subplots(figsize=(10, 6))
     sns.boxplot(x='Local', y='price', data=dados_visuais, orient='v', palette='viridis', showfliers=mostrar_outliers, ax=ax2)
-    ax2.set_title(f'Preço - {titulo_contexto}')
+    ax2.set_title(f'')
     ax2.set_xlabel('Local')
     ax2.set_ylabel('Valor (R$)')
     st.pyplot(fig2)
@@ -171,7 +171,7 @@ st.markdown("---")
 row2_col1, row2_col2 = st.columns(2)
 
 with row2_col1:
-    st.subheader(f"3. Valor do Frete")
+    st.subheader(f"3. Valor do Frete({titulo_contexto})")
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     sns.boxplot(x='Local', y='freight_value', data=dados_visuais, orient='v', palette='crest', showfliers=mostrar_outliers, ax=ax3)
     ax3.set_title(f'Frete - {titulo_contexto}')
@@ -180,7 +180,7 @@ with row2_col1:
     st.pyplot(fig3)
 
 with row2_col2:
-    st.subheader(f"4. Parcelas (Crédito)")
+    st.subheader(f"4. Numero de parcelas ({titulo_contexto})")
     dados_apenas_credito = dados_visuais[dados_visuais['payment_type'] == 'credit_card']
     fig4, ax4 = plt.subplots(figsize=(10, 6))
     if dados_apenas_credito.empty:
@@ -205,7 +205,7 @@ row3_col1, row3_col2 = st.columns(2)
 
 # --- GRÁFICO 5: Dispersão Preço x Frete ---
 with row3_col1:
-    st.subheader("5. Relação Preço x Frete")
+    st.subheader(f"5. Relação Preço x Frete ({titulo_contexto})")
     
     dados_scatter = dados_visuais.copy()
     dados_scatter = dados_scatter.rename(columns={'payment_type_portugues': 'Forma de pagamento'})
@@ -234,7 +234,7 @@ with row3_col1:
 
 # --- GRÁFICO 6: Faixas de Preço ---
 with row3_col2:
-    st.subheader("6. Vendas por Faixa de Preço")
+    st.subheader(f"6. Vendas por Faixa de Preço ({titulo_contexto})")
     
     dados_faixas = dados_visuais.copy()
     

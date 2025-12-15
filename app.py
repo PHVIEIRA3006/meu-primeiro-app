@@ -190,4 +190,114 @@ with row2_col2:
         max_parcelas = dados_apenas_credito['payment_installments'].max()
         if pd.isna(max_parcelas): max_parcelas = 1
         max_parcelas = int(max_parcelas)
-        bins = range(1, max_parcel
+        bins = range(1, max_parcelas + 2)
+        sns.histplot(data=dados_apenas_credito, x='payment_installments', bins=16, discrete=True, color='skyblue', ax=ax4)
+        ax4.set_title(f'Freq. Parcelas - {titulo_contexto}')
+        ax4.set_xlabel('Nº Parcelas')
+        ax4.set_ylabel('Frequência')
+        ax4.set_xticks(range(1, max_parcelas + 1))
+    st.pyplot(fig4)
+
+st.markdown("---")
+
+row3_col1, row3_col2 = st.columns(2)
+
+# --- GRÁFICO 5: Dispersão Preço x Frete (COM FILTRO DE OUTLIERS MANUAL) ---
+with row3_col1:
+    st.subheader(f"5. Relação Preço x Frete ({titulo_contexto})")
+    
+    dados_scatter = dados_visuais.copy()
+    dados_scatter = dados_scatter.rename(columns={'payment_type_portugues': 'Forma de pagamento'})
+    
+    # *** LOGICA DE FILTRO DE OUTLIERS PARA SCATTERPLOT ***
+    if not mostrar_outliers and not dados_scatter.empty:
+        # Calcula IQR para Price
+        Q1_price = dados_scatter['price'].quantile(0.25)
+        Q3_price = dados_scatter['price'].quantile(0.75)
+        IQR_price = Q3_price - Q1_price
+        limite_superior_price = Q3_price + 1.5 * IQR_price
+
+        # Calcula IQR para Freight
+        Q1_freight = dados_scatter['freight_value'].quantile(0.25)
+        Q3_freight = dados_scatter['freight_value'].quantile(0.75)
+        IQR_freight = Q3_freight - Q1_freight
+        limite_superior_freight = Q3_freight + 1.5 * IQR_freight
+
+        # Filtra os dados
+        dados_scatter = dados_scatter[
+            (dados_scatter['price'] <= limite_superior_price) & 
+            (dados_scatter['freight_value'] <= limite_superior_freight)
+        ]
+    # *****************************************************
+
+    fig5, ax5 = plt.subplots(figsize=(10, 6))
+    
+    if not dados_scatter.empty:
+        sns.scatterplot(
+            x='price', 
+            y='freight_value', 
+            data=dados_scatter, 
+            hue='Forma de pagamento', 
+            alpha=0.6, 
+            palette='viridis',
+            ax=ax5
+        )
+        ax5.grid(True, linestyle='--', alpha=0.7)
+    else:
+        st.info("Sem dados para exibir dispersão (ou todos foram filtrados como outliers).")
+        
+    ax5.set_title(f'Preço vs Frete - {titulo_contexto}')
+    ax5.set_xlabel('Preço do Produto')
+    ax5.set_ylabel('Valor do Frete')
+    
+    st.pyplot(fig5)
+
+# --- GRÁFICO 6: Faixas de Preço ---
+with row3_col2:
+    st.subheader(f"6. Vendas por Faixa de Preço ({titulo_contexto})")
+    
+    dados_faixas = dados_visuais.copy()
+    
+    if not dados_faixas.empty:
+        max_price = teste3_copy['price'].max()
+        bins = [0, 50, 100, 200, 500, 1000, max_price + 1]
+        labels = ['0-50', '51-100', '101-200', '201-500', '501-1000', '>1000']
+
+        dados_faixas['faixa_preco'] = pd.cut(dados_faixas['price'], bins=bins, labels=labels, right=False)
+        faixa_counts = dados_faixas['faixa_preco'].value_counts().sort_index()
+
+        fig6, ax6 = plt.subplots(figsize=(10, 6))
+        sns.barplot(x=faixa_counts.index, y=faixa_counts.values, color='seagreen', ax=ax6)
+
+        ax6.set_title(f"Vendas por Faixa - {titulo_contexto}")
+        ax6.set_ylabel("Qtd. Pedidos")
+        ax6.set_xlabel("Faixa de Preço")
+
+        for i, v in enumerate(faixa_counts.values):
+            ax6.text(i, v + (v*0.01), str(v), ha='center', fontweight='bold')
+            
+        st.pyplot(fig6)
+    else:
+        st.info("Sem dados para exibir faixas de preço.")
+
+# --- 9. EXIBIÇÃO DE DADOS BRUTOS ---
+st.divider()
+st.subheader("📂 Base de Dados Filtrada")
+
+df_final = dados_visuais
+
+st.dataframe(df_final.head(100), use_container_width=True)
+
+nome_arquivo = f"dados_vendas_{nome_da_regiao}"
+if estado_selecionado != 'Todos':
+    nome_arquivo += f"_{estado_selecionado}"
+nome_arquivo += ".csv"
+
+csv = df_final.to_csv(index=False).encode('utf-8')
+
+st.download_button(
+    label="📥 Baixar Dados Filtrados (CSV)",
+    data=csv,
+    file_name=nome_arquivo,
+    mime="text/csv",
+)

@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # --- 1. Carregar dados ---
-# Dica: Em produção, use @st.cache_data para não recarregar toda vez
 teste3_filtered = pd.read_csv('teste3_filtered.csv')
 
 # Definição das Regiões
@@ -36,6 +35,7 @@ payment_type_traducao = {
 
 # Tratamento do DataFrame
 teste3_copy = teste3_filtered.copy()
+# Cria a coluna com nomes completos AQUI
 teste3_copy['customer_state_full'] = teste3_copy['customer_state'].map(regiãosemsigla)
 teste3_copy['payment_type_portugues'] = teste3_copy['payment_type'].map(payment_type_traducao)
 
@@ -58,13 +58,13 @@ pag_dist_centroeste = clientes_centroeste.groupby(['customer_state_full', 'payme
 
 st.title("Análise de Vendas por Região")
 
-# Seletor
+# Seletor de Região
 opcoes_regiao = ['Centro-Oeste', 'Nordeste', 'Norte', 'Sudeste', 'Sul']
 escolha_regiao = st.selectbox('Selecione a região:', opcoes_regiao)
 
 # Lógica de Seleção (Define qual DF usar baseado na escolha)
-região = pd.DataFrame() # Inicializa vazio
-regiãopag = pd.DataFrame() # Inicializa vazio
+região = pd.DataFrame() 
+regiãopag = pd.DataFrame() 
 
 if escolha_regiao == "Nordeste":
     região = clientes_nordeste
@@ -84,12 +84,11 @@ elif escolha_regiao == "Centro-Oeste":
 
 nome_da_regiao = escolha_regiao
 
-#seletor de estaos
-lista_estados = sorted(região['customer_state'].unique())
+# --- SELETOR DE ESTADOS (Para o Gráfico 4) ---
+# Mudança: Usando 'customer_state_full' em vez de 'customer_state'
+lista_estados = sorted(região['customer_state_full'].unique())
 lista_estados.insert(0, 'Todos')
-estado_selecionado = st.selectbox("Selecione o Estado para visualizar o histograma:", lista_estados)
-
-
+estado_selecionado = st.selectbox("Selecione o Estado para visualizar o histograma de parcelas:", lista_estados)
 
 
 # --- GRÁFICO 1: Barras (Tipos de Pagamento) ---
@@ -127,7 +126,7 @@ sns.boxplot(
 ax2.set_title(f'Distribuição do preço por Estado ({nome_da_regiao})')
 ax2.set_xlabel('Estado')
 ax2.set_ylabel('Valor (R$)')
-# Ajuste opcional para visualizar melhor (remove outliers extremos visuais)
+# Ajuste opcional: remove outliers extremos visuais
 ax2.set_ylim(0, região['price'].quantile(0.95)) 
 st.pyplot(fig2)
 
@@ -153,25 +152,34 @@ st.pyplot(fig3)
 st.markdown("---")
 
 # --- GRÁFICO 4: Histograma (Parcelas - Apenas Cartão de Crédito) ---
-st.subheader(f"4. Frequência de Parcelas - Cartão de Crédito ({nome_da_regiao})")
+# Título dinâmico
+titulo_grafico = f"4. Frequência de Parcelas - Cartão de Crédito - {estado_selecionado}"
+st.subheader(titulo_grafico)
 
-# *** NOVO FILTRO AQUI ***
-# Filtra o dataframe 'região' para pegar apenas linhas onde o pagamento é cartão de crédito
-regiao_apenas_credito = região[região['payment_type'] == 'credit_card']
+# 1. Filtro de Estado (Se não for 'Todos')
+dados_para_grafico = região.copy()
+
+if estado_selecionado != 'Todos':
+    # Mudança: Filtrando pela coluna de nome completo 'customer_state_full'
+    dados_para_grafico = dados_para_grafico[dados_para_grafico['customer_state_full'] == estado_selecionado]
+
+# 2. Filtro de Cartão de Crédito
+regiao_apenas_credito = dados_para_grafico[dados_para_grafico['payment_type'] == 'credit_card']
 
 fig4, ax4 = plt.subplots(figsize=(12, 8))
 
-# Cálculo seguro dos bins (usando o dataframe filtrado)
+# Cálculo seguro dos bins
 max_parcelas = regiao_apenas_credito['payment_installments'].max()
 
 if pd.isna(max_parcelas):
-    max_parcelas = 1 # Evita erro se não houver vendas no cartão
+    max_parcelas = 1 
+    st.warning(f"Não há dados de cartão de crédito para {estado_selecionado}.")
 else:
     max_parcelas = int(max_parcelas)
 
 bins = range(1, max_parcelas + 2)
 
-# Desenha o histograma usando o dataframe filtrado (regiao_apenas_credito)
+# Desenha o histograma
 sns.histplot(
     data=regiao_apenas_credito,
     x='payment_installments',
@@ -181,7 +189,7 @@ sns.histplot(
     ax=ax4
 )
 
-ax4.set_title(f'Frequência de Parcelas (Cartão de Crédito) - Região {nome_da_regiao}')
+ax4.set_title(f'Frequência de Parcelas (Cartão de Crédito) - {estado_selecionado}')
 ax4.set_xlabel('Número de Parcelas')
 ax4.set_ylabel('Frequência')
 ax4.set_xticks(range(1, max_parcelas + 1))

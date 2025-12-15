@@ -10,7 +10,6 @@ import numpy as np
 st.set_page_config(layout="wide") 
 
 # --- 1. Carregar dados ---
-# Cache para performance (opcional, mas recomendado)
 @st.cache_data
 def carregar_dados():
     return pd.read_csv('teste3_filtered.csv')
@@ -18,9 +17,7 @@ def carregar_dados():
 try:
     teste3_filtered = carregar_dados()
 except FileNotFoundError:
-    # Caso o arquivo não exista no ambiente, criamos um dummy para o exemplo não quebrar
-    # REMOVA ISSO EM PRODUÇÃO E USE APENAS O READ_CSV
-    st.error("Arquivo 'teste3_filtered.csv' não encontrado. Usando dados fictícios para demonstração.")
+    st.error("Arquivo 'teste3_filtered.csv' não encontrado. Usando dados fictícios.")
     dados_dict = {
         'customer_state': np.random.choice(['SP', 'RJ', 'MG', 'BA', 'RS'], 100),
         'payment_type': np.random.choice(['credit_card', 'boleto', 'voucher'], 100),
@@ -29,7 +26,6 @@ except FileNotFoundError:
         'payment_installments': np.random.randint(1, 12, 100)
     }
     teste3_filtered = pd.DataFrame(dados_dict)
-
 
 # Definição das Regiões
 Nordeste = ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE']
@@ -120,6 +116,31 @@ else:
 
 st.markdown("---")
 
+# --- NOVO: SEÇÃO DE KPI / MÉTRICAS ---
+st.subheader(f"📊 Resumo Estatístico - {titulo_contexto}")
+
+# Cálculo das métricas
+total_vendas = len(dados_visuais)
+
+if total_vendas > 0:
+    preco_medio = dados_visuais['price'].mean()
+    frete_medio = dados_visuais['freight_value'].mean()
+    parcelas_media = dados_visuais['payment_installments'].mean()
+else:
+    preco_medio = 0
+    frete_medio = 0
+    parcelas_media = 0
+
+# Exibição em 4 colunas
+kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+
+kpi1.metric("📦 Total de Pedidos", f"{total_vendas}")
+kpi2.metric("💰 Preço Médio", f"R$ {preco_medio:.2f}")
+kpi3.metric("🚚 Frete Médio", f"R$ {frete_medio:.2f}")
+kpi4.metric("💳 Média de Parcelas", f"{parcelas_media:.1f}x")
+
+st.markdown("---")
+
 # --- GRÁFICOS LINHA 1 ---
 row1_col1, row1_col2 = st.columns(2)
 
@@ -185,13 +206,11 @@ row3_col1, row3_col2 = st.columns(2)
 with row3_col1:
     st.subheader("5. Relação Preço x Frete")
     
-    # Prepara dados (Renomeia apenas para o gráfico)
     dados_scatter = dados_visuais.copy()
     dados_scatter = dados_scatter.rename(columns={'payment_type_portugues': 'Forma de pagamento'})
     
     fig5, ax5 = plt.subplots(figsize=(10, 6))
     
-    # Check para evitar erro com dataframe vazio
     if not dados_scatter.empty:
         sns.scatterplot(
             x='price', 
@@ -219,8 +238,6 @@ with row3_col2:
     dados_faixas = dados_visuais.copy()
     
     if not dados_faixas.empty:
-        # Define faixas
-        # Usamos o max do dataset original para garantir que as bins funcionem sempre
         max_price = teste3_copy['price'].max()
         bins = [0, 50, 100, 200, 500, 1000, max_price + 1]
         labels = ['0-50', '51-100', '101-200', '201-500', '501-1000', '>1000']
@@ -235,7 +252,6 @@ with row3_col2:
         ax6.set_ylabel("Qtd. Pedidos")
         ax6.set_xlabel("Faixa de Preço")
 
-        # Rótulos nas barras
         for i, v in enumerate(faixa_counts.values):
             ax6.text(i, v + (v*0.01), str(v), ha='center', fontweight='bold')
             
@@ -247,19 +263,15 @@ with row3_col2:
 st.divider()
 st.subheader("📂 Base de Dados Filtrada")
 
-# df_final é o nosso dados_visuais (já filtrado por região e estado/todos)
 df_final = dados_visuais
 
-# Exibe dataframe
 st.dataframe(df_final.head(100), use_container_width=True)
 
-# Nome do arquivo dinâmico
 nome_arquivo = f"dados_vendas_{nome_da_regiao}"
 if estado_selecionado != 'Todos':
     nome_arquivo += f"_{estado_selecionado}"
 nome_arquivo += ".csv"
 
-# Converte para CSV
 csv = df_final.to_csv(index=False).encode('utf-8')
 
 st.download_button(

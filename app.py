@@ -14,18 +14,8 @@ st.set_page_config(layout="wide")
 def carregar_dados():
     return pd.read_csv('teste3_filtered.csv')
 
-try:
     teste3_filtered = carregar_dados()
-except FileNotFoundError:
-    st.error("Arquivo 'teste3_filtered.csv' não encontrado. Usando dados fictícios.")
-    dados_dict = {
-        'customer_state': np.random.choice(['SP', 'RJ', 'MG', 'BA', 'RS'], 100),
-        'payment_type': np.random.choice(['credit_card', 'boleto', 'voucher'], 100),
-        'price': np.random.uniform(10, 1000, 100),
-        'freight_value': np.random.uniform(5, 50, 100),
-        'payment_installments': np.random.randint(1, 12, 100)
-    }
-    teste3_filtered = pd.DataFrame(dados_dict)
+
 
 # Definição das Regiões
 Nordeste = ['AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE']
@@ -200,7 +190,6 @@ with row2_col2:
 
 st.markdown("---")
 
-# --- NOVOS GRÁFICOS (LINHA 3) ---
 row3_col1, row3_col2 = st.columns(2)
 
 # --- GRÁFICO 5: Dispersão Preço x Frete ---
